@@ -118,10 +118,13 @@ EVOLUTION_TEXT_PAYLOAD_FORMAT=top-level
 EVOLUTION_DEFAULT_COUNTRY_CODE=55
 
 BILLING_REMINDER_DAYS=7,3,1
+BILLING_ENABLED=false
 BILLING_PROCESS_TIME=08:00
 ```
 
 O horário da aplicação está configurado para `America/Sao_Paulo`. Confirme que a URL da Evolution, a chave e o nome da instância estão corretos e que a instância está conectada ao WhatsApp.
+
+`BILLING_ENABLED=false` mantém o botão de cobrança manual oculto na listagem de alunos e bloqueia o envio manual. Para liberar essa função futuramente, altere a variável para `true` e faça um novo deploy.
 
 ## 4. Migrações
 

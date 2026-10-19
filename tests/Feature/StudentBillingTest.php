@@ -123,6 +123,7 @@ it('creates one invoice and sends idempotent reminders through Evolution API', f
 it('allows sending a manual charge immediately', function (): void {
     $user = User::factory()->create();
     $this->actingAs($user);
+    config(['billing.enabled' => true]);
     config([
         'services.evolution.base_url' => 'https://evolution.test',
         'services.evolution.api_key'  => 'test-key',
@@ -149,6 +150,27 @@ it('allows sending a manual charge immediately', function (): void {
         ->and(BillingNotification::query()->where('kind', 'manual')->whereNotNull('sent_at')->count())->toBe(1);
 
     Http::assertSentCount(2);
+});
+
+it('hides the manual charge button when billing is disabled', function (): void {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+    config(['billing.enabled' => false]);
+
+    Student::query()->create([
+        'user_id'                  => $user->id,
+        'name'                     => 'Carlos Souza',
+        'phone'                    => '5511999991111',
+        'billing_amount'           => 180,
+        'billing_recurrence'       => 'monthly',
+        'billing_due_day'          => 15,
+        'student_receives_billing' => true,
+        'billing_start_date'       => CarbonImmutable::today()->toDateString(),
+    ]);
+
+    Livewire::test('pages::student.index')
+        ->set('listOnly', true)
+        ->assertDontSee('Cobrar');
 });
 
 it('allows undoing a payment and returns the invoice to pending', function (): void {

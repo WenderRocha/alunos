@@ -91,6 +91,12 @@ new class () extends Component
 
     public function chargeNow(int $studentId): void
     {
+        if (! config('billing.enabled', false)) {
+            \Flux\Flux::toast(variant: 'warning', text: 'As cobranças estão desativadas no momento.');
+
+            return;
+        }
+
         $student = Student::query()
             ->where('user_id', Auth::id())
             ->with('contacts')
@@ -405,16 +411,18 @@ new class () extends Component
                                         </flux:button>
                                         @endif
 
-                                        <flux:button
-                                            size="sm"
-                                            variant="primary"
-                                            icon="paper-airplane"
-                                            wire:click="chargeNow({{ $student->id }})"
-                                            wire:loading.attr="disabled"
-                                            wire:target="chargeNow({{ $student->id }})"
-                                        >
-                                            Cobrar
-                                        </flux:button>
+                                        @if (config('billing.enabled', false))
+                                            <flux:button
+                                                size="sm"
+                                                variant="primary"
+                                                icon="paper-airplane"
+                                                wire:click="chargeNow({{ $student->id }})"
+                                                wire:loading.attr="disabled"
+                                                wire:target="chargeNow({{ $student->id }})"
+                                            >
+                                                Cobrar
+                                            </flux:button>
+                                        @endif
                                     @endif
 
                                     <flux:button
@@ -514,17 +522,19 @@ new class () extends Component
                                     </flux:button>
                                 @endif
 
-                                <flux:button
-                                    class="w-full {{ $invoice ? '' : 'col-span-2' }}"
-                                    size="sm"
-                                    variant="primary"
-                                    icon="paper-airplane"
-                                    wire:click="chargeNow({{ $student->id }})"
-                                    wire:loading.attr="disabled"
-                                    wire:target="chargeNow({{ $student->id }})"
-                                >
-                                    Cobrar
-                                </flux:button>
+                                @if (config('billing.enabled', false))
+                                    <flux:button
+                                        class="w-full {{ $invoice ? '' : 'col-span-2' }}"
+                                        size="sm"
+                                        variant="primary"
+                                        icon="paper-airplane"
+                                        wire:click="chargeNow({{ $student->id }})"
+                                        wire:loading.attr="disabled"
+                                        wire:target="chargeNow({{ $student->id }})"
+                                    >
+                                        Cobrar
+                                    </flux:button>
+                                @endif
                             @endif
 
                             <flux:button

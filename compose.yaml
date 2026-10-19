@@ -31,6 +31,7 @@ x-app-environment: &app-environment
   EVOLUTION_TEXT_PAYLOAD_FORMAT: ${EVOLUTION_TEXT_PAYLOAD_FORMAT:-top-level}
   EVOLUTION_DEFAULT_COUNTRY_CODE: ${EVOLUTION_DEFAULT_COUNTRY_CODE:-55}
   BILLING_REMINDER_DAYS: ${BILLING_REMINDER_DAYS:-7,3,1}
+  BILLING_ENABLED: ${BILLING_ENABLED:-false}
   BILLING_PROCESS_TIME: ${BILLING_PROCESS_TIME:-08:00}
 
 services:
@@ -42,8 +43,8 @@ services:
       <<: *app-environment
       RUN_MIGRATIONS: "true"
       RUN_OPTIMIZE: "true"
-    ports:
-      - "${APP_PORT:-8080}:80"
+    expose:
+      - "80"
     depends_on:
       db:
         condition: service_healthy
