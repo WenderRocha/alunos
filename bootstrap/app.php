@@ -15,7 +15,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        // O Coolify termina o TLS no proxy e encaminha a requisição ao
+        // container via HTTP. Confiar no proxy permite ao Laravel respeitar
+        // o X-Forwarded-Proto e gerar URLs/assets em HTTPS.
+        $middleware->trustProxies(at: '*');
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
