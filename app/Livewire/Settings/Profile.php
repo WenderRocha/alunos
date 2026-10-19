@@ -21,13 +21,21 @@ class Profile extends Component
 
     public string $email = '';
 
+    public string $pix_key = '';
+
+    public string $billing_message_template = '';
+
     /**
      * Mount the component.
      */
     public function mount(): void
     {
-        $this->name  = Auth::user()->name;
-        $this->email = Auth::user()->email;
+        $this->name                     = Auth::user()->name;
+        $this->email                    = Auth::user()->email;
+        $this->pix_key                  = Auth::user()->pix_key ?? '';
+        $this->billing_message_template = filled(Auth::user()->billing_message_template)
+            ? Auth::user()->billing_message_template
+            : (string) config('billing.message_template');
     }
 
     /**

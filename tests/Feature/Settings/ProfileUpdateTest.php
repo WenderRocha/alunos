@@ -10,6 +10,9 @@ test('profile page is displayed', function (): void {
     $this->actingAs($user = User::factory()->create());
 
     $this->get('/settings/profile')->assertOk();
+
+    Livewire::test(Profile::class)
+        ->assertSet('billing_message_template', config('billing.message_template'));
 });
 
 test('profile information can be updated', function (): void {
@@ -20,6 +23,8 @@ test('profile information can be updated', function (): void {
     $response = Livewire::test(Profile::class)
         ->set('name', 'Test User')
         ->set('email', 'test@example.com')
+        ->set('pix_key', 'test@example.com')
+        ->set('billing_message_template', 'Olá {aluno}, sua cobrança de {valor} vence em {vencimento}.')
         ->call('updateProfileInformation');
 
     $response->assertHasNoErrors();
@@ -28,6 +33,8 @@ test('profile information can be updated', function (): void {
 
     expect($user->name)->toEqual('Test User');
     expect($user->email)->toEqual('test@example.com');
+    expect($user->pix_key)->toEqual('test@example.com');
+    expect($user->billing_message_template)->toEqual('Olá {aluno}, sua cobrança de {valor} vence em {vencimento}.');
     expect($user->email_verified_at)->toBeNull();
 });
 

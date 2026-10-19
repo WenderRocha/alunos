@@ -37,4 +37,13 @@ return [
         ],
     ],
 
+    'evolution' => [
+        'base_url'             => env('EVOLUTION_API_URL'),
+        'api_key'              => env('EVOLUTION_API_KEY'),
+        'instance'             => env('EVOLUTION_INSTANCE'),
+        'timeout'              => (int) env('EVOLUTION_API_TIMEOUT', 15),
+        'payload_format'       => env('EVOLUTION_TEXT_PAYLOAD_FORMAT', 'top-level'),
+        'default_country_code' => env('EVOLUTION_DEFAULT_COUNTRY_CODE', '55'),
+    ],
+
 ];

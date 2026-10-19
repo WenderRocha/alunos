@@ -1,0 +1,104 @@
+name: alunos
+
+x-app-environment: &app-environment
+  APP_NAME: ${APP_NAME:-Alunos}
+  APP_ENV: ${APP_ENV:-production}
+  APP_KEY: ${APP_KEY:?Defina APP_KEY no arquivo .env}
+  APP_DEBUG: ${APP_DEBUG:-false}
+  APP_URL: ${APP_URL:-http://localhost:8080}
+  APP_LOCALE: ${APP_LOCALE:-pt_BR}
+  APP_FALLBACK_LOCALE: ${APP_FALLBACK_LOCALE:-en}
+  LOG_CHANNEL: ${LOG_CHANNEL:-stderr}
+  LOG_STACK: ${LOG_STACK:-stderr}
+  LOG_LEVEL: ${LOG_LEVEL:-info}
+  DB_CONNECTION: pgsql
+  DB_HOST: db
+  DB_PORT: 5432
+  DB_DATABASE: alunos
+  DB_USERNAME: alunos
+  DB_PASSWORD: ${POSTGRES_PASSWORD:-change-this-password}
+  SESSION_DRIVER: redis
+  CACHE_STORE: redis
+  QUEUE_CONNECTION: sync
+  REDIS_CLIENT: phpredis
+  REDIS_HOST: redis
+  REDIS_PORT: 6379
+  FILESYSTEM_DISK: ${FILESYSTEM_DISK:-local}
+  EVOLUTION_API_URL: ${EVOLUTION_API_URL:-}
+  EVOLUTION_API_KEY: ${EVOLUTION_API_KEY:-}
+  EVOLUTION_INSTANCE: ${EVOLUTION_INSTANCE:-}
+  EVOLUTION_API_TIMEOUT: ${EVOLUTION_API_TIMEOUT:-15}
+  EVOLUTION_TEXT_PAYLOAD_FORMAT: ${EVOLUTION_TEXT_PAYLOAD_FORMAT:-top-level}
+  EVOLUTION_DEFAULT_COUNTRY_CODE: ${EVOLUTION_DEFAULT_COUNTRY_CODE:-55}
+  BILLING_REMINDER_DAYS: ${BILLING_REMINDER_DAYS:-7,3,1}
+  BILLING_PROCESS_TIME: ${BILLING_PROCESS_TIME:-08:00}
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      <<: *app-environment
+      RUN_MIGRATIONS: "true"
+      RUN_OPTIMIZE: "true"
+    ports:
+      - "${APP_PORT:-8080}:80"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - app-storage:/var/www/html/storage/app
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost/up"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+  scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ["php", "artisan", "schedule:work"]
+    environment:
+      <<: *app-environment
+      RUN_MIGRATIONS: "false"
+      RUN_OPTIMIZE: "false"
+    depends_on:
+      app:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - app-storage:/var/www/html/storage/app
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: alunos
+      POSTGRES_USER: alunos
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-this-password}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U alunos -d alunos"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  app-storage:
+  postgres-data:

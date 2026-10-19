@@ -7,6 +7,7 @@ namespace App\Concerns;
 use App\Models\User;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Validation\Rule;
+use Stringable;
 
 trait ProfileValidationRules
 {
@@ -18,15 +19,17 @@ trait ProfileValidationRules
     protected function profileRules(?int $userId = null): array
     {
         return [
-            'name'  => $this->nameRules(),
-            'email' => $this->emailRules($userId),
+            'name'                     => $this->nameRules(),
+            'email'                    => $this->emailRules($userId),
+            'pix_key'                  => ['nullable', 'string', 'max:255'],
+            'billing_message_template' => ['nullable', 'string', 'max:2000'],
         ];
     }
 
     /**
      * Get the validation rules used to validate user names.
      *
-     * @return array<int, ValidationRule|array<mixed>|string>
+     * @return array<int, Stringable|ValidationRule|array<mixed>|string>
      */
     protected function nameRules(): array
     {
@@ -36,7 +39,7 @@ trait ProfileValidationRules
     /**
      * Get the validation rules used to validate user emails.
      *
-     * @return array<int, ValidationRule|array<mixed>|string>
+     * @return array<int, Stringable|ValidationRule|array<mixed>|string>
      */
     protected function emailRules(?int $userId = null): array
     {

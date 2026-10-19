@@ -2,6 +2,7 @@
 
 declare(strict_types = 1);
 
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -20,4 +21,10 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request): bool => $request->is('api/*') || $request->expectsJson(),
         );
-    })->create();
+    })
+    ->withSchedule(function (Schedule $schedule): void {
+        $schedule->command('billing:process')
+            ->dailyAt((string) config('billing.process_time', '08:00'))
+            ->withoutOverlapping();
+    })
+    ->create();
